@@ -1,0 +1,277 @@
+Auteur : zigoto667
+version : 0.5
+
+installation xubunutu 12.04 LTS sans problème
+==============================================
+* Télécharger l'iso depuis : ftp://ftp.free.fr/mirrors/ftp.xubuntu.com/releases/12.04.2/release/
+* Télécharger aussi le fichier SHA256SUMS
+*Une fois le téléchargement terminé, vérifier que tout c'est bien passé :
+	-éditer SHA256SUMS et commenter (avec #) les lignes qui correspondent aux ISO NON téléchargées
+	-$cd download_directory
+	-$sha256sum -c SHA256SUMS
+	- On doit obtenir qqch comme
+	-xubuntu-12.04.2-desktop-amd64.iso: OK
+	-On peut maintenant écrire l'ISO sur un support
+* Avec le Système>créateur de disques de démarage :
+	- Reseigner l'adresse de l'ISO 
+	- Renseigner la périférique sur lequel écrire l'ISO
+	- "Créer un disque de démarage"
+	-Vous voilà prêts à booter un Système live ;)
+
+pas besoin de connexion internet
+
+--proxy afpa--
+
+export http_proxy=http://172.19.254.1:8080 
+suffit pout apt-get
+
+en fait non :
+If you normally use sudo to run apt-get you will need to login as root first for this to work unless you also add some explicit environment settings to /etc/sudoers, e.g.
+
+Defaults env_keep = "http_proxy https_proxy ftp_proxy"
+
+sur la machine de Nash il a fallu faire ça ;)
+
+pour les variables d'environnement :
+
+# J'ai choisi cette première option et ca fonctionne comme un charme
+/etc/environment
+http_proxy="http://user:password@proxyserver:port"
+https_proxy="http://user:password@proxyserver:port"
+ftp_proxy="http://user:password@proxyserver:port"
+
+OR
+
+Add to following lines to your ~/.bashrc file /etc/bash.bashrc:
+
+export http_proxy="http://user:password@proxyserver:port"
+export https_proxy="http://user:password@proxyserver:port"
+export ftp_proxy="http://user:password@proxyserver:port"
+
+--mise à jour
+
+$sudo apt-get update && sudo apt-get dist-upgrade 
+
+--divers--
+suppression des dossiers vides dans /home/utilisateur
+
+
+--bureaux multiples--
+par defaut, dans XFCE, pour naviguer d'un bureau à l'autre, c'est Ctrl + Alt + fleche gauche/droite
+
+--xfce panel--
+enlever gnumusicbrowser
+enlever GIMP
+enlever Abiword
+enlever logitheque ubuntu ?
+enlever liste des applications ?
+ajouter Kicad
+ajouter libreoffice writer
+ajouter calculatrice
+
+--Xchat--
+*proxy
+Dans Paramètres>préférences
+Réseau>Réglages relatifs au réseau
+Nom de l'hote : 172.19.254.1
+Port : 8080
+type HTTP
+Toutes les connexions
+
+--disk-utility--
+sudo apt-get install gnome-disk-utility
+
+--Samba--
+install samba (necessaire ?) En fait non
+
+--Geany--
+sudo apt-get install geany :)
+
+-- firefox --
+pour firefox, il faut mettre les paramètres proxy à la main
+changer les moteurs de recherche
+(ajouter NoScript, adblock, https everywhere, dictionnaire francais)
+sudo apt-get install flashplugin-installer
+(si un autre truc était installé, http://doc.ubuntu-fr.org/flashplayer )
+
+--VirtualBox--
+Pour que ca fonctionne, dans 
+Configuration>Stockage>Controleur IDE
+Changer le Type et choisir PIIX3
+*l'accès au réseau fonctionne sans rien configurer
+*pour accéder aux périfériques USB, il faut ajouter l'utilisateur au group vboxusers
+en ligne de commande : 
+sudo gpasswd -a [user] [group]
+ici
+sudo gpasswd -a zigoto667 vboxusers
+
+puis cliquer sur l'icone usb en bas de la fenêtre et sélectionner périférique inconnu
+sinon, quand y a pas le machin graphique, il faut faire Host+Debut (defaultHost=Ctrl droite)
+=> youpi ca fonctionne !
+
+
+--Kicad--
+install kicad fonctionne (build 2011-05-25) super obsolète...
+cf : http://www.kicad-pcb.org/
+sudo add-apt-repository ppa:adamwolf/kicad-testing-daily
+sudo apt-get update
+sudo apt-get install kicad kicad-doc-fr
+copier les bibliothèques nécéssaires (au moins device.lib pour ctrl_cuve)
+old : /usr/local/kicad/share/library/device.lib
+new : /usr/share/kicad/library
+
+*Pour ne pas mettre à jour kicad
+	-$echo "kicad" hold | sudo dpkg --set-selections 
+	-$echo "kicad-common" hold | sudo dpkg --set-selections 
+	-$echo "kicad-doc-fr" hold | sudo dpkg --set-selections 
+	
+	-Pour vérifier que c'est bien pris en compte
+	-$dpkg --get-selections | grep kicad
+	-doit retourner
+	kicad						hold
+	kicad-common					hold
+	kicad-doc-fr					hold
+
+
+
+--LTspice--
+install wine
+télécharger LTspice
+clic droit sur le fichier .exe > ouvrir avec wine
+
+--FilterPro-- 
+Ne fonctionne pas dans wine :'(
+fonctionne dans Windows XP
+
+--Waveform Digilent--
+version 2.2.4 fonctionne dans windows couine pour avoir Microsof Visual C++ 2008
+la version à jour 2012 ne lui convient pas.
+S'en foutre fonctionne 
+(j'ai trouvé la version 2008, je l'ai installée, mais je n'ai pas encore éssayer de réinstaller WaveForm par dessus pour voir s'il ne couine plus)
+Penser à faire un AutoSet pour ne pas se faire chier)
+
+--Digilent Cable Driver for Xilinx Design Suite--
+cf. https://lighttomorrow.wordpress.com/2011/12/18/how-to-install-digilent-cable-driver-for-xilinx-design-suite-on-ubuntu-11-10/
+ou (pas essayé) http://elinux.org/Install_Xilinx_USB_cable_drivers_for_Ubuntu
+*je trouve pas de libusb dans ubuntu ?!? 
+*problème de haders après téléchargement, pas très grave, je retélécharge et ca fonctionne
+/usr/local/lib/digilent/adept
+
+le but étant de "runner" : 
+$djtgcfg -d Nexys3 -i 0 prog -f fichier.bit
+(en fait ca fonctionne avec IMPACT)
+
+----------------------------------------------------------------------------
+digilent adept runtime
+######################
+$ sudo DOCUMENTS/progr\ lancement\ adept\ linux/digilent.adept.runtime_2.10.2-i686/install.sh 
+Adept Runtime Installer
+32-bit operating system detected
+In which directory should libraries be installed? [/usr/local/lib/digilent/adept] 
+ls: impossible d'accéder à lib: Aucun fichier ou dossier de ce type
+error: couldn't find any shared libraries in lib
+
+en fait ce pb vient du fait que je ne suis pas dans le bon dossier, il faut bien faire un 
+$ cd DOCUMENTS/progr\ lancement\ adept\ linux/digilent.adept.runtime_2.10.2-i686/ avant
+
+pb n2
+
+norbert@stagiairecdse-desktop:~/DOCUMENTS/progr lancement adept linux/digilent.adept.runtime_2.10.2-i686$ sudo ./install.sh 
+Adept Runtime Installer
+32-bit operating system detected
+In which directory should libraries be installed? [/usr/local/lib/digilent/adept] 
+Installing runtime libraries.....
+./install.sh: ligne 431: ./install-slib.sh: Permission non accordée
+error: failed to install lib/libdabs.so
+
+ca ne vient pas des espaces dans le PATH
+
+en fait c'est parce que j'avais pas les droits d'exécution sur ./install-slib.sh
+bien penser à faire
+sudo chmod +x install.sh install-slib.sh
+--------------------------------------------------------------------------------
+
+--Xilinx ISE--
+http://www.xilinx.com/products/design-tools/ise-design-suite/ise-webpack.htm
+http://embeddedmicro.com/tutorials/the-mojo/installing-ise
+jetter un coup d'oeuil à https://wiki.archlinux.org/index.php/Xilinx_ISE_WebPACK
+et aussi http://www.petalogix.com/
+pourquoi pas http://www.xilinx.com/support/answers/20944.htm
+et puis http://zedboard.org/content/ise-142-bug-reports
+
+il faut ajouter les droits d'exécution aux fichiers 
+xsetup
+et
+.bin/lin/xsetup
+et 
+.bin/lin/_xsetup
+
+!! il ne faut pas installer les cable driver
+
+
+dirname: extra operand `wincrap/Xilinx_ISE_DS_14.4_P.49d.3.0-1/bin/lin'
+Try `dirname --help' for more information.
+dirname: missing operand
+Try `dirname --help' for more information.
+==> supprimmer l'espace dans le dossier parent
+
+c'est long !!
+
+à 90% ca demande une license, j'en fait une.
+
+l'exécutable, c'est
+~/Xilinx/14.4/ISE_DS/ISE/bin/lin/ise
+
+=>pour ajouter ISE dans le menu Xfce panel 
+click droit sur le menu => propriétés => éditer le menu => nouvel element => lui donner le chemin de l'executable dans Commande ;)
+merci Hicham
+
+
+
+--libreoffice--
+install libreoffice (fonctionne à première vue, mais en anglais en version 3.6)
+il faut ajouter hyphen-fr libreoffice-help-fr libreoffice-l10n-fr
+
+cf. http://news.softpedia.com/news/How-to-Install-LibreOffice-4-on-Ubuntu-12-10-and-12-04-335741.shtml
+cf. https://launchpad.net/~libreoffice/+archive/libreoffice-4-0
+
+pour avoir juste libreoffice4.0 :
+	-$sudo add-apt-repository ppa:libreoffice/libreoffice-4-0
+	-$sudo apt-get update && sudo apt-get dist-upgrade
+	-voila ;)
+
+libreoffice-dmaths (pour l'insertion de formules) (c'est pas beau, je ne suis pas sur que c'est nécessaire)
+Affichage>Barre d'outils>décocher Addon 1-5
+
+--pcmanfm--
+pcmanfm fonctionne 
+pour accéder directement au partage, mettre un signet sur smb://serveurcdse/PARTAGE/ 
+
+--ssh over HTTP--
+apt-get install corkscrew
+
+ssh -i crap/id_dsa root@91.224.149.131 -o "ProxyCommand corkscrew 172.19.254.1 8080 91.224.149.131 2222"
+
+ssh root@91.224.149.131 -o "ProxyCommand corkscrew 172.19.254.1 8080 91.224.149.131 2222"
+
+
+
+
+http://laslow.net/2012/05/06/gnome-keyring-issues-in-ubuntu-12-04/
+---------------------------------------------------------------------------------------
+While trying to do a ‘repo sync’ on the CyanogenMOD source after doing a fresh install of Xubuntu 12.04, I started getting the following error, repeated many times:
+
+WARNING: gnome-keyring:: couldn't connect to: /tmp/keyring-*****/pkcs11
+
+Turns out, a package upgrade (I was too lazy to identify which one) changed/reverted /etc/xdg/autostart/gnome-keyring-pkcs11.desktop and caused gnome-keyring-daemon to not load properly with XFCE. The fix was to find this line:
+
+OnlyShowIn=GNOME;Unity
+
+And append ;XFCE to it, making it:
+
+OnlyShowIn=GNOME;Unity;XFCE
+
+After a quick reboot everything worked as normal.
+--------------------------------------------------------------------------------------------
+
+
